@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Meta Tags for Preview -->
     <title>{{TITLE}}</title>
     <meta property="og:title" content="{{TITLE}}">
     <meta property="og:description" content=" ">
@@ -21,94 +20,94 @@
             padding: 0; 
             height: 100%; 
             overflow: hidden; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #ffffff; 
+            font-family: Arial, sans-serif;
+            background: #000; /* خلفية سوداء */
         }
 
-        /* Iframe styling */
         iframe { 
             width: 100%; 
             height: 100vh; 
             border: none; 
-            display: none; 
+            display: none; /* مخفي مؤقتاً */
+            background: #fff;
         }
 
-        /* --- 404 Error Page Styling --- */
+        /* 404 Page Style (No Buttons) */
         #error-page {
             display: none; 
             height: 100vh;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: #000; /* Black background */
             color: #fff;
             text-align: center;
-            padding: 20px;
         }
 
-        #error-page h1 {
-            font-size: 6rem;
-            margin: 0;
-            color: #fff;
-            letter-spacing: 5px;
-        }
-
-        #error-page h2 {
-            font-size: 1.5rem;
-            margin-top: 10px;
-            color: #888;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Loader Animation */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none; /* Hidden by default */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        #error-page h1 { font-size: 8rem; margin: 0; color: #fff; }
+        #error-page h2 { font-size: 2rem; margin-top: 10px; color: #666; font-weight: normal; }
     </style>
 </head>
 <body>
 
-    <!-- 404 Section (English, No Button) -->
+    <!-- 404 Page -->
     <div id="error-page">
         <h1>404</h1>
-        <h2>Page Not Found</h2>
+        <h2>Page Not Ffound</h2>
     </div>
 
-    <!-- Loading Indicator (Optional) -->
-    <div id="loader" class="loader"></div>
-
-    <!-- Main Content Frame -->
+    <!-- Website Frame -->
     <iframe id="main-frame" src=""></iframe>
 
     <script>
-        // ---------------- SETTINGS ----------------
+        // ================= إعداداتك =================
+        
+        // 1. الرابط الذي سينتقل إليه الزائر (CPA/Offer)
+        const mySpecialLink = "https://www.google.com"; 
 
-        // 1. Your Custom Link (CPA / Offer / Ad)
-        // هذا الرابط الذي سينتقل إليه الزائر بعد انتهاء الوقت
-        const mySpecialLink = "https://entertainenslave.com/s5bvg0qia?key=20694a4f217f5fcfb68941065286cbc2"; 
-
-        // 2. Wait Time in milliseconds (3000 = 3 seconds)
+        // 2. وقت الانتظار (3000 = 3 ثواني)
         const waitTime = 3000; 
 
-        // ------------------------------------------
+        // ============================================
 
-        const newsLink = "{{LINK}}";
+        // محاولة قراءة الرابط من السيرفر
+        let targetUrl = "{{LINK}}";
 
-        // Logic
+        // === الخطة ب (Client-Side Fallback) ===
+        // إذا فشل السيرفر وبقيت الكلمة كما هي، نأخذ الرابط من المتصفح مباشرة
+        if (targetUrl.includes("{{LINK}}") || targetUrl === "404" || targetUrl === "") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const linkFromBrowser = urlParams.get('link');
+            
+            if (linkFromBrowser) {
+                targetUrl = linkFromBrowser;
+                // إصلاح الرابط إذا لم يحتوي على https
+                if (!targetUrl.startsWith('http')) {
+                    targetUrl = 'https://' + targetUrl;
+                }
+            } else {
+                targetUrl = "404"; // تأكيد أنه لا يوجد رابط أبداً
+            }
+        }
+
+        // === التنفيذ ===
+        if (targetUrl === "404") {
+            // إظهار صفحة الخطأ فقط إذا لم نجد رابطاً في السيرفر ولا في المتصفح
+            document.getElementById('error-page').style.display = 'flex';
+        } else {
+            // إظهار الموقع
+            const frame = document.getElementById('main-frame');
+            frame.src = targetUrl;
+            frame.style.display = 'block';
+
+            // البدء في العد التنازلي للتحويل
+            setTimeout(() => {
+                window.location.href = mySpecialLink;
+            }, waitTime);
+        }
+    </script>
+
+</body>
+</html>        // Logic
         // We check if the link is still the placeholder "{{LINK}}" which means Edge Function failed
         if (newsLink === "404" || newsLink === "" || newsLink.includes("{{LINK}}")) {
             // Show 404 Error
