@@ -2,24 +2,22 @@ export default async (request, context) => {
   const url = new URL(request.url);
   const targetLink = url.searchParams.get("link");
 
-  // Get the original HTML
   const response = await context.next();
   const page = await response.text();
 
-  // Defaults
   let finalTitle = "Loading...";
   let finalImage = "";
-  let finalLink = "404"; // Default to 404 if no link provided
+  let finalLink = "404";
 
   if (targetLink) {
-    // If a link exists, we USE IT, even if fetching metadata fails later
     finalLink = targetLink;
     if (!finalLink.startsWith("http")) finalLink = "https://" + finalLink;
 
     try {
-      // Try to fetch metadata (Timeout 3 seconds)
+      // محاولة جلب البيانات بمهلة قصيرة جداً (1.5 ثانية فقط)
+      // حتى لا يتأخر تحميل الصفحة
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
 
       const targetResponse = await fetch(finalLink, {
         signal: controller.signal,
@@ -35,12 +33,10 @@ export default async (request, context) => {
         if (imageMatch) finalImage = imageMatch[1];
       }
     } catch (error) {
-      // If fetch fails (timeout or block), we assume defaults but KEEP the link valid
-      console.log("Fetch failed, using defaults");
+      // تجاهل الأخطاء (المهم أن الرابط موجود)
     }
   }
 
-  // Replace placeholders
   const updatedPage = page
     .replace(/{{TITLE}}/g, finalTitle)
     .replace(/{{IMAGE}}/g, finalImage)
