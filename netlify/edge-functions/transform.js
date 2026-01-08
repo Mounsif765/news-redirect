@@ -1,26 +1,28 @@
 export default async (request, context) => {
   const url = new URL(request.url);
-  
-  // 1. البحث عن الرابط
   const targetLink = url.searchParams.get("link");
 
-  // الحصول على الصفحة الأصلية
+  // Get the original HTML
   const response = await context.next();
   const page = await response.text();
 
-  // إعدادات افتراضية (في حال عدم وجود رابط، نضع القيمة 404)
-  let finalTitle = "الصفحة غير موجودة";
-  let finalImage = ""; 
-  // هنا التغيير: إذا لم يوجد رابط، القيمة ستكون 404
-  let finalLink = "404"; 
+  // Defaults
+  let finalTitle = "Loading...";
+  let finalImage = "";
+  let finalLink = "404"; // Default to 404 if no link provided
 
   if (targetLink) {
+    // If a link exists, we USE IT, even if fetching metadata fails later
     finalLink = targetLink;
     if (!finalLink.startsWith("http")) finalLink = "https://" + finalLink;
 
-    // محاولة جلب البيانات (كما في السابق)
     try {
+      // Try to fetch metadata (Timeout 3 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const targetResponse = await fetch(finalLink, {
+        signal: controller.signal,
         headers: { "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" }
       });
       
@@ -28,19 +30,17 @@ export default async (request, context) => {
         const html = await targetResponse.text();
         const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i);
         if (titleMatch) finalTitle = titleMatch[1];
-        else {
-            const titleTag = html.match(/<title>([^<]*)<\/title>/i);
-            if (titleTag) finalTitle = titleTag[1];
-        }
+        
         const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]*)"/i);
         if (imageMatch) finalImage = imageMatch[1];
       }
     } catch (error) {
-      console.log("Error fetching target:", error);
+      // If fetch fails (timeout or block), we assume defaults but KEEP the link valid
+      console.log("Fetch failed, using defaults");
     }
   }
 
-  // استبدال القيم
+  // Replace placeholders
   const updatedPage = page
     .replace(/{{TITLE}}/g, finalTitle)
     .replace(/{{IMAGE}}/g, finalImage)
