@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- هذه الكلمات سيتم استبدالها تلقائياً -->
+    <title>{{TITLE}}</title>
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="انقر للانتقال إلى الخبر">
+    <meta property="og:image" content="{{IMAGE}}">
+    <meta property="og:url" content="{{LINK}}">
+    
+    <!-- دعم تويتر و Getter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{TITLE}}">
+    <meta name="twitter:image" content="{{IMAGE}}">
+
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #f4f4f4; }
+        #header-bar {
+            background: #333; color: #fff; text-align: center; padding: 0 15px;
+            height: 60px; display: flex; align-items: center; justify-content: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
+        iframe { width: 100%; height: calc(100vh - 60px); margin-top: 60px; border: none; background: white;}
+        .timer-box { font-size: 18px; }
+        #timer { color: #e74c3c; font-weight: bold; padding: 0 5px;}
+        .btn { margin-right: 15px; padding: 5px 15px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="header-bar">
+        <div class="timer-box">سيتم نقلك للخبر خلال <span id="timer">10</span> ثوانٍ</div>
+        <button class="btn" onclick="goNow()">انتقال فوراً</button>
+    </div>
+
+    <!-- سيتم وضع الرابط هنا -->
+    <iframe id="frame" src="{{LINK}}"></iframe>
+
+    <script>
+        // الرابط يتم حقنه هنا أيضاً
+        const targetUrl = "{{LINK}}";
+        let timeLeft = 10;
+        const timerElem = document.getElementById('timer');
+
+        function goNow() {
+            window.location.href = targetUrl;
+        }
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElem.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                goNow();
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>
