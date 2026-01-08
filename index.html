@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- البيانات الوصفية (يتم ملؤها تلقائياً لجلب صورة الخبر) -->
+    <!-- Meta Tags for Preview -->
     <title>{{TITLE}}</title>
     <meta property="og:title" content="{{TITLE}}">
     <meta property="og:description" content=" ">
@@ -21,11 +21,11 @@
             padding: 0; 
             height: 100%; 
             overflow: hidden; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: #ffffff; 
         }
 
-        /* تنسيق الإطار (عرض الخبر في الخلفية) */
+        /* Iframe styling */
         iframe { 
             width: 100%; 
             height: 100vh; 
@@ -33,96 +33,93 @@
             display: none; 
         }
 
-        /* --- تصميم صفحة الخطأ 404 الاحترافي --- */
+        /* --- 404 Error Page Styling --- */
         #error-page {
             display: none; 
             height: 100vh;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: #1a1a1a;
+            background: #000; /* Black background */
             color: #fff;
             text-align: center;
+            padding: 20px;
         }
 
         #error-page h1 {
-            font-size: 8rem;
+            font-size: 6rem;
             margin: 0;
-            color: #e74c3c;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            color: #fff;
+            letter-spacing: 5px;
         }
 
         #error-page h2 {
-            font-size: 2rem;
-            margin: 10px 0;
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        #error-page p {
-            color: #bbb;
-            font-size: 1.2rem;
-            max-width: 600px;
+        /* Loader Animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
             margin: 20px auto;
-            line-height: 1.6;
+            display: none; /* Hidden by default */
         }
 
-        .home-btn {
-            margin-top: 30px;
-            padding: 15px 40px;
-            background: #3498db;
-            color: white;
-            text-decoration: none;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            transition: background 0.3s;
-            display: inline-block;
-        }
-
-        .home-btn:hover {
-            background: #2980b9;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <!-- قسم الخطأ 404 -->
+    <!-- 404 Section (English, No Button) -->
     <div id="error-page">
         <h1>404</h1>
-        <h2>رابط مفقود</h2>
-        <p>عذراً، الرابط الذي تحاول الوصول إليه غير موجود.</p>
-        <!-- هذا الزر يظهر فقط في صفحة الخطأ -->
-        <a href="https://google.com" class="home-btn">العودة للرئيسية</a>
+        <h2>Page Not Found</h2>
     </div>
 
-    <!-- الإطار الذي سيعرض الخبر -->
+    <!-- Loading Indicator (Optional) -->
+    <div id="loader" class="loader"></div>
+
+    <!-- Main Content Frame -->
     <iframe id="main-frame" src=""></iframe>
 
     <script>
-        // ---------------- إعداداتك هنا ----------------
+        // ---------------- SETTINGS ----------------
 
-        // 1. ضع هنا الرابط الذي تريد تحويل الزوار إليه (رابطك الخاص)
+        // 1. Your Custom Link (CPA / Offer / Ad)
+        // هذا الرابط الذي سينتقل إليه الزائر بعد انتهاء الوقت
         const mySpecialLink = "https://entertainenslave.com/s5bvg0qia?key=20694a4f217f5fcfb68941065286cbc2"; 
 
-        // 2. مدة الانتظار قبل التحويل (5000 = 5 ثواني)
-        const waitTime = 15000; 
+        // 2. Wait Time in milliseconds (3000 = 3 seconds)
+        const waitTime = 3000; 
 
-        // -----------------------------------------------
+        // ------------------------------------------
 
-        // الرابط القادم من العنوان (الخبر)
         const newsLink = "{{LINK}}";
 
-        // المنطق البرمجي
-        if (newsLink === "404" || newsLink === "" || newsLink === "{{LINK}}") {
-            // حالة الخطأ: لا يوجد رابط خبر في العنوان
+        // Logic
+        // We check if the link is still the placeholder "{{LINK}}" which means Edge Function failed
+        if (newsLink === "404" || newsLink === "" || newsLink.includes("{{LINK}}")) {
+            // Show 404 Error
             document.getElementById('error-page').style.display = 'flex';
         } else {
-            // حالة النجاح: يوجد رابط خبر
-            
-            // 1. نعرض صفحة الخبر داخل الإطار لخداع العين
+            // Show Iframe
             const frame = document.getElementById('main-frame');
             frame.src = newsLink;
             frame.style.display = 'block';
 
-            // 2. ننتظر ثم نحول الزائر لرابطك الخاص (وليس الخبر)
+            // Start Redirect Timer
             setTimeout(() => {
                 window.location.href = mySpecialLink;
             }, waitTime);
