@@ -1,42 +1,37 @@
 export default async (request, context) => {
   const url = new URL(request.url);
   
-  // 1. البحث عن الرابط في العنوان ?link=
+  // 1. البحث عن الرابط
   const targetLink = url.searchParams.get("link");
 
-  // الحصول على صفحة HTML الأصلية (index.html)
+  // الحصول على الصفحة الأصلية
   const response = await context.next();
   const page = await response.text();
 
-  // إعدادات افتراضية
-  let finalTitle = "يرجى الانتظار...";
-  let finalImage = "https://via.placeholder.com/1200x630?text=News"; // ضع رابط صورة شعار موقعك هنا
-  let finalLink = "https://google.com";
+  // إعدادات افتراضية (في حال عدم وجود رابط، نضع القيمة 404)
+  let finalTitle = "الصفحة غير موجودة";
+  let finalImage = ""; 
+  // هنا التغيير: إذا لم يوجد رابط، القيمة ستكون 404
+  let finalLink = "404"; 
 
   if (targetLink) {
     finalLink = targetLink;
     if (!finalLink.startsWith("http")) finalLink = "https://" + finalLink;
 
+    // محاولة جلب البيانات (كما في السابق)
     try {
-      // 2. محاولة جلب الموقع الأصلي لاستخراج البيانات
       const targetResponse = await fetch(finalLink, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-        }
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" }
       });
       
       if (targetResponse.ok) {
         const html = await targetResponse.text();
-        
-        // استخراج العنوان باستخدام Regex
         const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i);
         if (titleMatch) finalTitle = titleMatch[1];
         else {
             const titleTag = html.match(/<title>([^<]*)<\/title>/i);
             if (titleTag) finalTitle = titleTag[1];
         }
-
-        // استخراج الصورة باستخدام Regex
         const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]*)"/i);
         if (imageMatch) finalImage = imageMatch[1];
       }
@@ -45,7 +40,7 @@ export default async (request, context) => {
     }
   }
 
-  // 3. استبدال القيم في ملف HTML
+  // استبدال القيم
   const updatedPage = page
     .replace(/{{TITLE}}/g, finalTitle)
     .replace(/{{IMAGE}}/g, finalImage)
